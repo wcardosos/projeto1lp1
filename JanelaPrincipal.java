@@ -24,12 +24,18 @@ public class JanelaPrincipal extends JFrame {
      * @param casaClicada Casa que o jogador clicou.
      */
     public void reagir(CasaGUI casaClicada) {
+        Peca peca = jogo.getTabuleiro().getCasa(casaClicada.getPosicaoX(), casaClicada.getPosicaoY()).getPeca();
         if (primeiroClique) {
-            if (casaClicada.possuiPeca()) {
+            if(jogo.getVez() && (peca.getTipo() == 2 || peca.getTipo() == 3)) {
+                JOptionPane.showMessageDialog(this, "Vez do branco! ");
+            }
+            else if(!jogo.getVez() && (peca.getTipo() == 0 || peca.getTipo() == 1)) {
+                JOptionPane.showMessageDialog(this, "Vez do vermelho! ");
+            }
+            else if (casaClicada.possuiPeca()) {
                 casaClicadaOrigem = casaClicada;
                 casaClicadaOrigem.destacar();
                 primeiroClique = false;
-                //jogo.analisaPosicoesPossiveis(casaClicadaOrigem.getX(), casaClicadaOrigem.getY());
             }
             else {
                 // clicou em uma posi�?o inv�lida, ent?o n?o faz nada.
@@ -76,6 +82,7 @@ public class JanelaPrincipal extends JFrame {
         super.setLocationRelativeTo(null);
         super.setVisible(true);
         super.pack();
+        iniciante();
     }
 
     
@@ -216,7 +223,7 @@ public class JanelaPrincipal extends JFrame {
         lbl_h.setText("7");
         pnlColunas.add(lbl_h);
 
-        menuArquivo.setText("Jogo");
+        menuArquivo.setText("Opções");
 
         menuNovo.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_N, java.awt.event.InputEvent.CTRL_MASK));
         menuNovo.setText("Novo");
@@ -258,6 +265,14 @@ public class JanelaPrincipal extends JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    public void iniciante() {
+        if(jogo.getVez()) {
+            JOptionPane.showMessageDialog(this, "Branco inicia. ");
+        } else {
+            JOptionPane.showMessageDialog(this, "Vermelho inicia. ");
+        }
+    }
 
     /**
      * @param args the command line arguments

@@ -6,14 +6,17 @@
  * @author Leonardo Villeth &lt;lvilleth@cc.ci.ufpb.br&gt;
  */
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Jogo {
 
     private Tabuleiro tabuleiro;
+    private boolean vez;
 
     public Jogo() {
         tabuleiro = new Tabuleiro();
         criarPecas();
+        jogadorIniciante();
     }
     
     /**
@@ -65,127 +68,33 @@ public class Jogo {
      */
     public void moverPeca(int origemX, int origemY, int destinoX, int destinoY) {
         Peca peca = tabuleiro.getCasa(origemX, origemY).getPeca();
-        analisaPosicoesPossiveis(origemX, origemY);
+        
+        verificaEliminacao(peca, origemX, origemY);
+        
         
         if(peca.existeEliminacao()) {
             if(peca.verificaExistenciaPosicao(destinoX, destinoY)) {
-               peca.mover(tabuleiro.getCasa(destinoX, destinoY));
-               eliminarPecas(origemX, origemY, destinoX, destinoY);
-               
+                peca.mover(tabuleiro.getCasa(destinoX, destinoY));
+                eliminarPecas(origemX, origemY, destinoX, destinoY);
+                setVez();
             }
         } else {
             if(origemX - destinoX == 1 || origemX - destinoX == -1) {
                 if(peca.getTipo() == 0 && (destinoY - 1 == origemY)) {
                     if(tabuleiro.getCasa(destinoX, destinoY).getPeca() == null) {
                         peca.mover(tabuleiro.getCasa(destinoX, destinoY));
+                        setVez();
                     }
                 } else if(peca.getTipo() == 2 && (destinoY + 1 == origemY)) {
                     if(tabuleiro.getCasa(destinoX, destinoY).getPeca() == null) {
                         peca.mover(tabuleiro.getCasa(destinoX, destinoY));
+                        setVez();
                     }
                 }
             }
         }
         
-    }
-    
-    public void analisaPosicoesPossiveis(int origemX, int origemY) {
-        Casa verificacao;
-        Casa casa = tabuleiro.getCasa(origemX, origemY);
-        casa.getPeca().limpaPosicoesPossiveis();
-        if(verificaLimite(origemX - 1) && verificaLimite(origemY + 1)) {
-            verificacao = tabuleiro.getCasa(origemX - 1, origemY + 1);
-            if(casa.getPeca().getTipo() == 0) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 2 || verificacao.getPeca().getTipo() == 3)) {
-                    if(verificaLimite(origemX - 2) && verificaLimite(origemY + 2)) {
-                        if(tabuleiro.getCasa(origemX - 2, origemY + 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX - 2, origemY + 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            } else if(casa.getPeca().getTipo() == 2) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 0 || verificacao.getPeca().getTipo() == 1)) {
-                    if(verificaLimite(origemX - 2) && verificaLimite(origemY + 2)) {
-                        if(tabuleiro.getCasa(origemX - 2, origemY + 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX - 2, origemY + 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            }
-        }
-        
-        if(verificaLimite(origemX + 1) && verificaLimite(origemY + 1)) {
-            verificacao = tabuleiro.getCasa(origemX + 1, origemY + 1);
-            if(casa.getPeca().getTipo() == 0) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 2 || verificacao.getPeca().getTipo() == 3)) {
-                    if(verificaLimite(origemX + 2) && verificaLimite(origemY + 2)) {
-                        if(tabuleiro.getCasa(origemX + 2, origemY + 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX + 2, origemY + 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            } else if(casa.getPeca().getTipo() == 2) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 0 || verificacao.getPeca().getTipo() == 1)) {
-                    if(verificaLimite(origemX + 2) && verificaLimite(origemY + 2)) {
-                        if(tabuleiro.getCasa(origemX + 2, origemY + 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX + 2, origemY + 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            }
-        }
-        
-        
-        
-        if(verificaLimite(origemX - 1) && verificaLimite(origemY - 1)) {
-            verificacao = tabuleiro.getCasa(origemX - 1, origemY - 1);
-            if(casa.getPeca().getTipo() == 0) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 2 || verificacao.getPeca().getTipo() == 3)) {
-                    if(verificaLimite(origemX - 2) && verificaLimite(origemY - 2)) {
-                        if(tabuleiro.getCasa(origemX - 2, origemY - 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX - 2, origemY - 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            } else if(casa.getPeca().getTipo() == 2) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 0 || verificacao.getPeca().getTipo() == 1)) {
-                    if(verificaLimite(origemX - 2) && verificaLimite(origemY - 2)) {
-                        if(tabuleiro.getCasa(origemX - 2, origemY - 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX - 2, origemY - 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            }
-        }
-        
-        if(verificaLimite(origemX + 1) && verificaLimite(origemY - 1)) {
-            verificacao = tabuleiro.getCasa(origemX + 1, origemY - 1);
-            if(casa.getPeca().getTipo() == 0) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 2 || verificacao.getPeca().getTipo() == 3)) {
-                    if(verificaLimite(origemX - 2) && verificaLimite(origemY + 2)) {
-                        if(tabuleiro.getCasa(origemX + 2, origemY - 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX + 2, origemY - 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            } else if(casa.getPeca().getTipo() == 2) {
-                if(verificacao.getPeca() != null && (verificacao.getPeca().getTipo() == 0 || verificacao.getPeca().getTipo() == 1)) {
-                    if(verificaLimite(origemX + 2) && verificaLimite(origemY - 2)) {
-                        if(tabuleiro.getCasa(origemX + 2, origemY - 2).getPeca() == null) {
-                            casa.getPeca().adicionaPosicao(new Casa(origemX + 2, origemY - 2));
-                            casa.getPeca().adicionaPecaParaEliminar();
-                        }
-                    }
-                }
-            }
-        }
+        peca.limpaPosicoesPossiveis();
     }
     
     public void eliminarPecas(int origemX, int origemY, int destinoX, int destinoY) {
@@ -207,6 +116,33 @@ public class Jogo {
         tabuleiro.getCasa(x,y).removerPeca();
     }
     
+    public void verificaEliminacao(Peca peca, int origemX, int origemY) {
+        Casa casa1, casa2;
+        if(verificaLimite(origemX - 1) && verificaLimite(origemY + 1) && verificaLimite(origemX - 2) && verificaLimite(origemY + 2)) {
+            casa1 = tabuleiro.getCasa(origemX - 1, origemY + 1);
+            casa2 = tabuleiro.getCasa(origemX - 2, origemY + 2);
+            peca.analisaPosicoesPossiveis(casa1, casa2); //ESQUERDA SUPERIOR
+        }
+        
+        if(verificaLimite(origemX + 1) && verificaLimite(origemY + 1) && verificaLimite(origemX + 2) && verificaLimite(origemY + 2)) {
+            casa1 = tabuleiro.getCasa(origemX + 1, origemY + 1);
+            casa2 = tabuleiro.getCasa(origemX + 2, origemY + 2);
+            peca.analisaPosicoesPossiveis(casa1, casa2); //DIREITA SUPERIOR
+        }
+        
+        if(verificaLimite(origemX - 1) && verificaLimite(origemY - 1) && verificaLimite(origemX - 2) && verificaLimite(origemY - 2)) {
+            casa1 = tabuleiro.getCasa(origemX - 1, origemY - 1);
+            casa2 = tabuleiro.getCasa(origemX - 2, origemY - 2);
+            peca.analisaPosicoesPossiveis(casa1, casa2); //ESQUERDA INFERIOR
+        }
+        
+        if(verificaLimite(origemX + 1) && verificaLimite(origemY - 1) && verificaLimite(origemX + 2) && verificaLimite(origemY - 2)) {
+            casa1 = tabuleiro.getCasa(origemX + 1, origemY - 1);
+            casa2 = tabuleiro.getCasa(origemX + 2, origemY - 2);
+            peca.analisaPosicoesPossiveis(casa1, casa2); //DIREITA INFERIOR
+        }
+    }
+    
     public boolean verificaLimite(int pos) {
         if (pos < 0) {
             return false;
@@ -215,6 +151,25 @@ public class Jogo {
         } else {
             return true;
         }
+    }
+    
+    public void jogadorIniciante() {
+        Random r = new Random();
+        int inicio = r.nextInt(2);
+        
+        if (inicio == 1) {
+            vez = true;
+        } else {
+            vez = false;
+        }
+    }
+    
+    public void setVez() {
+        vez = !vez;
+    }
+    
+    public boolean getVez() {
+        return vez;
     }
     
     /**
