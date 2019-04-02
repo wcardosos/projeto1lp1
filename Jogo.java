@@ -1,4 +1,4 @@
-
+ 
 /**
  * Armazena o tabuleiro e responsavel por posicionar as pecas.
  * 
@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Jogo {
-
-    private Tabuleiro tabuleiro;
+    
     private boolean vez;
+    private boolean controleEliminacaoSucessiva;
+    private Tabuleiro tabuleiro;
 
     public Jogo() {
         tabuleiro = new Tabuleiro();
+        controleEliminacaoSucessiva = false;
         criarPecas();
         jogadorIniciante();
     }
@@ -71,23 +73,31 @@ public class Jogo {
         
         verificaEliminacao(peca, origemX, origemY);
         
-        
         if(peca.existeEliminacao()) {
             if(peca.verificaExistenciaPosicao(destinoX, destinoY)) {
                 peca.mover(tabuleiro.getCasa(destinoX, destinoY));
                 eliminarPecas(origemX, origemY, destinoX, destinoY);
-                setVez();
+                peca = tabuleiro.getCasa(destinoX, destinoY).getPeca();
+                eliminacaoSucessiva(peca, destinoX, destinoY);
+                
+                if(!peca.getEliminacaoSucessiva()) {
+                    verificaPecaEhDama(destinoX, destinoY);
+                    setVez();
+                }
             }
         } else {
             if(origemX - destinoX == 1 || origemX - destinoX == -1) {
                 if(peca.getTipo() == 0 && (destinoY - 1 == origemY)) {
                     if(tabuleiro.getCasa(destinoX, destinoY).getPeca() == null) {
                         peca.mover(tabuleiro.getCasa(destinoX, destinoY));
+                        verificaPecaEhDama(destinoX, destinoY);
                         setVez();
                     }
                 } else if(peca.getTipo() == 2 && (destinoY + 1 == origemY)) {
+                    
                     if(tabuleiro.getCasa(destinoX, destinoY).getPeca() == null) {
                         peca.mover(tabuleiro.getCasa(destinoX, destinoY));
+                        verificaPecaEhDama(destinoX, destinoY);
                         setVez();
                     }
                 }
@@ -143,6 +153,19 @@ public class Jogo {
         }
     }
     
+    public void eliminacaoSucessiva(Peca peca, int origemX, int origemY) {
+        peca.limpaPosicoesPossiveis();
+        
+        verificaEliminacao(peca, origemX, origemY);
+        
+        peca.setEliminacaoSucessiva();
+        controleEliminacaoSucessiva = peca.existeEliminacao();
+    }
+    
+    public boolean getControleEliminacaoSucessiva() {
+        return controleEliminacaoSucessiva;
+    }
+    
     public boolean verificaLimite(int pos) {
         if (pos < 0) {
             return false;
@@ -170,6 +193,17 @@ public class Jogo {
     
     public boolean getVez() {
         return vez;
+    }
+    
+    public void verificaPecaEhDama(int posicaoX, int posicaoY) {
+        Dama pecaDama;
+        Casa casa = tabuleiro.getCasa(posicaoX, posicaoY);
+        
+        if(casa.getPeca().getDama()) {
+            pecaDama = new Dama(casa, casa.getPeca().getTipo());
+            casa.removerPeca();
+            casa.colocarPeca(pecaDama);
+        }
     }
     
     /**

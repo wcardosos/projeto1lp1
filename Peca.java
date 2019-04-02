@@ -20,12 +20,14 @@ public class Peca {
     private Casa casa;
     private int tipo;
     private boolean dama;
+    private boolean eliminacaoSucessiva;
     private ArrayList<Casa> posicoesPossiveis;
 
     public Peca(Casa casa, int tipo) {
         this.casa = casa;
         this.tipo = tipo;
         dama = false;
+        eliminacaoSucessiva = false;
         posicoesPossiveis = new ArrayList();
         casa.colocarPeca(this);
     }
@@ -38,6 +40,7 @@ public class Peca {
         casa.removerPeca();
         destino.colocarPeca(this);
         casa = destino;
+        verificaDama();
     }
 
     /**
@@ -91,12 +94,6 @@ public class Peca {
     }
     
     public void analisaPosicoesPossiveis(Casa casaPecaAdversaria, Casa casaEliminacao) {
-        //casaPecaAdversaria = origemX - 1 e origemY + 1
-        //casaEliminacao = origem - 2 e origemY + 2
-        //continuar com as verificações em Jogo
-        //fazer verificaLimite já em Jogo e jogar o argumento Casa já verificado
-        //limpaPosicoesPossiveis() CHAMAR APÓS A MOVIMENTAÇÃO CHEGAR AO FINAL
-        
         if(tipo == 0) {
               if(casaPecaAdversaria.getPeca() != null && (casaPecaAdversaria.getPeca().getTipo() == 2 || casaPecaAdversaria.getPeca().getTipo() == 3)) {
                   if(casaEliminacao.getPeca() == null) {
@@ -110,6 +107,23 @@ public class Peca {
                      adicionaPosicao(casaEliminacao);
                  }    
              }
+        }
+    }
+    
+    public void setEliminacaoSucessiva() {
+        eliminacaoSucessiva = existeEliminacao();
+    }
+    
+    public boolean getEliminacaoSucessiva() {
+        return eliminacaoSucessiva;
+    }
+    
+    public void verificaDama() {
+        if(tipo == 0 && casa.getY() == 7) {
+            setDama();
+        }
+        else if(tipo == 2 && casa.getY() == 0) {
+            setDama();
         }
     }
 }
