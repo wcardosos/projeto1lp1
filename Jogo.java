@@ -34,24 +34,24 @@ public class Jogo {
                     if(y % 2 == 0) {
                         if(x % 2 == 0) {
                             casa = tabuleiro.getCasa(x,y);
-                            peca = new Peca(casa, Peca.PEDRA_BRANCA);
+                            peca = new Peca(casa, Peca.PEDRA_BRANCA, 1);
                         }
                     } else {
                         if(x % 2 != 0) {
                             casa = tabuleiro.getCasa(x,y);
-                            peca = new Peca(casa, Peca.PEDRA_BRANCA);
+                            peca = new Peca(casa, Peca.PEDRA_BRANCA, 1);
                         }
                     }
                 } else if(y > 4) {
                     if(y % 2 == 0) {
                         if(x % 2 == 0) {
                             casa = tabuleiro.getCasa(x,y);
-                            peca = new Peca(casa, Peca.PEDRA_VERMELHA);
+                            peca = new Peca(casa, Peca.PEDRA_VERMELHA, -1);
                         }
                     } else {
                         if(x % 2 != 0) {
                             casa = tabuleiro.getCasa(x,y);
-                            peca = new Peca(casa, Peca.PEDRA_VERMELHA);
+                            peca = new Peca(casa, Peca.PEDRA_VERMELHA, -1);
                         }
                     }
                 }
@@ -70,96 +70,37 @@ public class Jogo {
      */
     public void moverPeca(int origemX, int origemY, int destinoX, int destinoY) {
         Peca peca = tabuleiro.getCasa(origemX, origemY).getPeca();
-        
-        verificaEliminacao(peca, origemX, origemY);
+        peca.verificaEliminacao(tabuleiro);
         
         if(peca.existeEliminacao()) {
             if(peca.verificaExistenciaPosicao(destinoX, destinoY)) {
+                eliminarPeca(peca.casaParaEliminar(tabuleiro.getCasa(destinoX, destinoY)));
                 peca.mover(tabuleiro.getCasa(destinoX, destinoY));
-                eliminarPecas(origemX, origemY, destinoX, destinoY);
                 peca = tabuleiro.getCasa(destinoX, destinoY).getPeca();
-                eliminacaoSucessiva(peca, destinoX, destinoY);
+                peca.eliminacaoSucessiva(tabuleiro);
+                setControleEliminacaoSucessiva(peca.getEliminacaoSucessiva());
                 
                 if(!peca.getEliminacaoSucessiva()) {
-                    verificaPecaEhDama(destinoX, destinoY);
+                    //verificaPecaEhDama(destinoX, destinoY);
                     setVez();
                 }
             }
         } else {
-            if(origemX - destinoX == 1 || origemX - destinoX == -1) {
-                if(peca.getTipo() == 0 && (destinoY - 1 == origemY)) {
-                    if(tabuleiro.getCasa(destinoX, destinoY).getPeca() == null) {
-                        peca.mover(tabuleiro.getCasa(destinoX, destinoY));
-                        verificaPecaEhDama(destinoX, destinoY);
-                        setVez();
-                    }
-                } else if(peca.getTipo() == 2 && (destinoY + 1 == origemY)) {
-                    
-                    if(tabuleiro.getCasa(destinoX, destinoY).getPeca() == null) {
-                        peca.mover(tabuleiro.getCasa(destinoX, destinoY));
-                        verificaPecaEhDama(destinoX, destinoY);
-                        setVez();
-                    }
-                }
+            if(peca.movimentoSimples(tabuleiro.getCasa(destinoX, destinoY))) {
+                peca.mover(tabuleiro.getCasa(destinoX, destinoY));
+                setVez();
             }
         }
         
         peca.limpaPosicoesPossiveis();
     }
     
-    public void eliminarPecas(int origemX, int origemY, int destinoX, int destinoY) {
-        Peca pecaOrigem = tabuleiro.getCasa(origemX, origemY).getPeca();
-        int x = -1, y = -1;
-        
-        if(destinoX > origemX) {
-            x = origemX + 1;
-        } else if (destinoX < origemX) {
-            x = origemX - 1;
-        }
-        
-        if (destinoY > origemY) {
-            y = origemY + 1;
-        } else if(destinoY < origemY) {
-            y = origemY - 1;
-        }
-        
-        tabuleiro.getCasa(x,y).removerPeca();
+    public void eliminarPeca(Casa casaEliminacao) {
+        tabuleiro.getCasa(casaEliminacao.getX(), casaEliminacao.getY()).removerPeca();
     }
     
-    public void verificaEliminacao(Peca peca, int origemX, int origemY) {
-        Casa casa1, casa2;
-        if(verificaLimite(origemX - 1) && verificaLimite(origemY + 1) && verificaLimite(origemX - 2) && verificaLimite(origemY + 2)) {
-            casa1 = tabuleiro.getCasa(origemX - 1, origemY + 1);
-            casa2 = tabuleiro.getCasa(origemX - 2, origemY + 2);
-            peca.analisaPosicoesPossiveis(casa1, casa2); //ESQUERDA SUPERIOR
-        }
-        
-        if(verificaLimite(origemX + 1) && verificaLimite(origemY + 1) && verificaLimite(origemX + 2) && verificaLimite(origemY + 2)) {
-            casa1 = tabuleiro.getCasa(origemX + 1, origemY + 1);
-            casa2 = tabuleiro.getCasa(origemX + 2, origemY + 2);
-            peca.analisaPosicoesPossiveis(casa1, casa2); //DIREITA SUPERIOR
-        }
-        
-        if(verificaLimite(origemX - 1) && verificaLimite(origemY - 1) && verificaLimite(origemX - 2) && verificaLimite(origemY - 2)) {
-            casa1 = tabuleiro.getCasa(origemX - 1, origemY - 1);
-            casa2 = tabuleiro.getCasa(origemX - 2, origemY - 2);
-            peca.analisaPosicoesPossiveis(casa1, casa2); //ESQUERDA INFERIOR
-        }
-        
-        if(verificaLimite(origemX + 1) && verificaLimite(origemY - 1) && verificaLimite(origemX + 2) && verificaLimite(origemY - 2)) {
-            casa1 = tabuleiro.getCasa(origemX + 1, origemY - 1);
-            casa2 = tabuleiro.getCasa(origemX + 2, origemY - 2);
-            peca.analisaPosicoesPossiveis(casa1, casa2); //DIREITA INFERIOR
-        }
-    }
-    
-    public void eliminacaoSucessiva(Peca peca, int origemX, int origemY) {
-        peca.limpaPosicoesPossiveis();
-        
-        verificaEliminacao(peca, origemX, origemY);
-        
-        peca.setEliminacaoSucessiva();
-        controleEliminacaoSucessiva = peca.existeEliminacao();
+    public void setControleEliminacaoSucessiva(boolean controle) {
+        controleEliminacaoSucessiva = controle;
     }
     
     public boolean getControleEliminacaoSucessiva() {
@@ -178,13 +119,7 @@ public class Jogo {
     
     public void jogadorIniciante() {
         Random r = new Random();
-        int inicio = r.nextInt(2);
-        
-        if (inicio == 1) {
-            vez = true;
-        } else {
-            vez = false;
-        }
+        vez = r.nextBoolean();
     }
     
     public void setVez() {

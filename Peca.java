@@ -8,7 +8,6 @@
  */
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Peca {
 
@@ -18,14 +17,16 @@ public class Peca {
     public static final int DAMA_VERMELHA = 3;
 
     private Casa casa;
+    private int direcao;
     private int tipo;
     private boolean dama;
     private boolean eliminacaoSucessiva;
     private ArrayList<Casa> posicoesPossiveis;
 
-    public Peca(Casa casa, int tipo) {
+    public Peca(Casa casa, int tipo, int direcao) {
         this.casa = casa;
         this.tipo = tipo;
+        this.direcao = direcao;
         dama = false;
         eliminacaoSucessiva = false;
         posicoesPossiveis = new ArrayList();
@@ -56,13 +57,23 @@ public class Peca {
     }
     
     public void setDama() {
-        dama = true;
-        tipo++;
+        if(!dama) {
+            dama = true;
+            tipo++;
+        }
+        else {
+            dama = false;
+            tipo--;
+        }
+        
+        direcao = -direcao;
+        
     }
     
     public boolean getDama() {
         return dama;
     }
+    
     
     public boolean existeEliminacao() {
         if(posicoesPossiveis.size() > 0) {
@@ -72,19 +83,23 @@ public class Peca {
         }
     }
     
+    
     public void adicionaPosicao(Casa casa) {
         posicoesPossiveis.add(casa);
     }
     
-    public boolean verificaExistenciaPosicao(int x, int y) {
-        Casa casaOrigem = new Casa(x,y);
-        for(Casa casa : posicoesPossiveis) {
-            if((casa.getX() == casaOrigem.getX()) && casa.getY() == casaOrigem.getY()) {
-                return true;
+    
+    public boolean movimentoSimples(Casa destino) {
+        boolean podeMover = false;
+        if(destino.getPeca() == null) {
+            if(destino.getY() == casa.getY() + direcao) {
+                if(destino.getX() == casa.getX() + 1 || destino.getX() == casa.getX() - 1) {
+                    podeMover = true;
+                }
             }
         }
         
-        return false;
+        return podeMover;
     }
     
     public void limpaPosicoesPossiveis() {      //usar cada vez que a lista de posiçoes for utilizada
@@ -93,7 +108,7 @@ public class Peca {
         }
     }
     
-    public void analisaPosicoesPossiveis(Casa casaPecaAdversaria, Casa casaEliminacao) {
+    public void analisaEliminacoes(Casa casaPecaAdversaria, Casa casaEliminacao) {
         if(tipo == 0) {
               if(casaPecaAdversaria.getPeca() != null && (casaPecaAdversaria.getPeca().getTipo() == 2 || casaPecaAdversaria.getPeca().getTipo() == 3)) {
                   if(casaEliminacao.getPeca() == null) {
@@ -108,6 +123,64 @@ public class Peca {
                  }    
              }
         }
+        
+    }
+    
+    public void verificaEliminacao(Tabuleiro tabuleiro) {
+        int origemX = casa.getX();
+        int origemY = casa.getY();
+        Casa casaPecaAdversaria, casaLivre;
+        
+        if(limite(origemX - 1) && limite(origemY + 1) && limite(origemX - 2) && limite(origemY + 2)) {
+            casaPecaAdversaria = tabuleiro.getCasa(origemX - 1, origemY + 1);
+            casaLivre = tabuleiro.getCasa(origemX - 2, origemY + 2);
+            analisaEliminacoes(casaPecaAdversaria, casaLivre);
+        }
+        
+        if(limite(origemX + 1) && limite(origemY + 1) && limite(origemX + 2) && limite(origemY + 2)) {
+            casaPecaAdversaria = tabuleiro.getCasa(origemX + 1, origemY + 1);
+            casaLivre = tabuleiro.getCasa(origemX + 2, origemY + 2);
+            analisaEliminacoes(casaPecaAdversaria, casaLivre);
+        }
+        
+        if(limite(origemX - 1) && limite(origemY - 1) && limite(origemX - 2) && limite(origemY - 2)) {
+            casaPecaAdversaria = tabuleiro.getCasa(origemX - 1, origemY - 1);
+            casaLivre = tabuleiro.getCasa(origemX - 2, origemY - 2);
+            analisaEliminacoes(casaPecaAdversaria, casaLivre);
+        }
+        
+        if(limite(origemX + 1) && limite(origemY - 1) && limite(origemX + 2) && limite(origemY - 2)) {
+            casaPecaAdversaria = tabuleiro.getCasa(origemX + 1, origemY - 1);
+            casaLivre = tabuleiro.getCasa(origemX + 2, origemY - 2);
+            analisaEliminacoes(casaPecaAdversaria, casaLivre);
+        }
+    }
+    
+    public Casa casaParaEliminar(Casa destino) { // CHAMAR ANTES DE MOVER A PECA
+        int posicaoXEliminacao = -1, posicaoYEliminacao = -1;
+        Casa casaEliminacao;
+        
+        if(destino.getX() > casa.getX()) {
+            posicaoXEliminacao = casa.getX() + 1;
+        }
+        else if(destino.getX() < casa.getX()) {
+            posicaoXEliminacao = casa.getX() - 1;
+        }
+        
+        if(destino.getY() > casa.getY()) {
+            posicaoYEliminacao = casa.getY() + 1;
+        } else if(destino.getY() < casa.getY()) {
+            posicaoYEliminacao = casa.getY() - 1;
+        }
+        
+        return casaEliminacao = new Casa(posicaoXEliminacao, posicaoYEliminacao);
+    }
+    
+    public void eliminacaoSucessiva(Tabuleiro tabuleiro){
+        limpaPosicoesPossiveis();
+        
+        verificaEliminacao(tabuleiro);
+        setEliminacaoSucessiva();
     }
     
     public void setEliminacaoSucessiva() {
@@ -118,12 +191,27 @@ public class Peca {
         return eliminacaoSucessiva;
     }
     
+    public int getDirecao() {
+        return direcao;
+    }
+    
     public void verificaDama() {
-        if(tipo == 0 && casa.getY() == 7) {
+        if((tipo == 0 || tipo == 3) && casa.getY() == 7) {
             setDama();
         }
-        else if(tipo == 2 && casa.getY() == 0) {
+        else if((tipo == 2 || tipo == 1) && casa.getY() == 0) {
             setDama();
+        }
+    }
+    
+    // RETORNA TRUE SE NÃO ESTIVER NO LIMITE
+    public boolean limite(int pos) {
+        if (pos < 0) {
+            return false;
+        } else if (pos > 7) {
+            return false;
+        } else {
+            return true;
         }
     }
 }

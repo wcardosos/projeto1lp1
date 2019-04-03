@@ -26,7 +26,7 @@ public class JanelaPrincipal extends JFrame {
     public void reagir(CasaGUI casaClicada) {
         Casa casa = jogo.getTabuleiro().getCasa(casaClicada.getPosicaoX(), casaClicada.getPosicaoY());
         if (primeiroClique) {
-            if(jogo.getControleEliminacaoSucessiva() && !casa.getPeca().getEliminacaoSucessiva()) {
+            if(jogo.getControleEliminacaoSucessiva() && (casa.getPeca() == null || !casa.getPeca().getEliminacaoSucessiva())) {
                 JOptionPane.showMessageDialog(this, "Continue eliminando!");
             }
             else if(jogo.getVez() && casa.getPeca() != null && (casa.getPeca().getTipo() == 2 || casa.getPeca().getTipo() == 3)) {
