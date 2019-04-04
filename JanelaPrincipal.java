@@ -30,10 +30,10 @@ public class JanelaPrincipal extends JFrame {
                 JOptionPane.showMessageDialog(this, "Continue eliminando!");
             }
             else if(jogo.getVez() && casa.getPeca() != null && (casa.getPeca().getTipo() == 2 || casa.getPeca().getTipo() == 3)) {
-                JOptionPane.showMessageDialog(this, "Vez do branco! "); //TENTAR MELHORAR O IF
+                JOptionPane.showMessageDialog(this, "Vez das peças brancas! ");
             }
             else if(!jogo.getVez() && casa.getPeca() != null && (casa.getPeca().getTipo() == 0 || casa.getPeca().getTipo() == 1)) {
-                JOptionPane.showMessageDialog(this, "Vez do vermelho! "); //TENTAR MELHORAR O IF
+                JOptionPane.showMessageDialog(this, "Vez das peças vermelhas! ");
             }
             else if (casaClicada.possuiPeca()) {
                 casaClicadaOrigem = casaClicada;
@@ -65,6 +65,7 @@ public class JanelaPrincipal extends JFrame {
         this.primeiroClique = true;
         this.casaClicadaOrigem = null;
         this.casaClicadaDestino = null;
+        this.setTitle("Damm");
         criarNovoJogo();
 
         // configura action listener para o menu novo
@@ -105,6 +106,9 @@ public class JanelaPrincipal extends JFrame {
 
     private void atualizar() {
         tabuleiroGUI.atualizar(jogo);
+        if(jogo.getFimDeJogo()) {
+            JOptionPane.showMessageDialog(this, "Fim de jogo! Parabéns ao vencedor !!!");
+        }
     }
 
     /**

@@ -10,13 +10,20 @@ import java.util.Random;
 
 public class Jogo {
     
+    private int pecasBrancas;
+    private int pecasVermelhas;
     private boolean vez;
     private boolean controleEliminacaoSucessiva;
+    private boolean fimDeJogo;
     private Tabuleiro tabuleiro;
+    
 
     public Jogo() {
-        tabuleiro = new Tabuleiro();
         controleEliminacaoSucessiva = false;
+        fimDeJogo = false;
+        tabuleiro = new Tabuleiro();
+        pecasBrancas = 12;
+        pecasVermelhas = 12;
         criarPecas();
         jogadorIniciante();
     }
@@ -73,8 +80,8 @@ public class Jogo {
         peca.verificaEliminacao(tabuleiro);
         
         if(peca.existeEliminacao()) {
-            if(peca.verificaExistenciaPosicao(destinoX, destinoY)) {
-                eliminarPeca(peca.casaParaEliminar(tabuleiro.getCasa(destinoX, destinoY)));
+            if(peca.verificaCasaEliminacao(tabuleiro.getCasa(destinoX, destinoY))) {
+                eliminarPeca(peca.casaParaEliminar(tabuleiro.getCasa(destinoX, destinoY)), peca.getTipo());
                 peca.mover(tabuleiro.getCasa(destinoX, destinoY));
                 peca = tabuleiro.getCasa(destinoX, destinoY).getPeca();
                 peca.eliminacaoSucessiva(tabuleiro);
@@ -82,6 +89,7 @@ public class Jogo {
                 
                 if(!peca.getEliminacaoSucessiva()) {
                     //verificaPecaEhDama(destinoX, destinoY);
+                    verificaFimDeJogo();
                     setVez();
                 }
             }
@@ -95,7 +103,14 @@ public class Jogo {
         peca.limpaPosicoesPossiveis();
     }
     
-    public void eliminarPeca(Casa casaEliminacao) {
+    public void eliminarPeca(Casa casaEliminacao, int tipoPecaOrigem) {
+        if(tipoPecaOrigem < 2) {
+            pecasVermelhas--;
+        }
+        else {
+            pecasBrancas--;
+        }
+            
         tabuleiro.getCasa(casaEliminacao.getX(), casaEliminacao.getY()).removerPeca();
     }
     
@@ -130,7 +145,7 @@ public class Jogo {
         return vez;
     }
     
-    public void verificaPecaEhDama(int posicaoX, int posicaoY) {
+    /*public void verificaPecaEhDama(int posicaoX, int posicaoY) {
         Dama pecaDama;
         Casa casa = tabuleiro.getCasa(posicaoX, posicaoY);
         
@@ -139,6 +154,17 @@ public class Jogo {
             casa.removerPeca();
             casa.colocarPeca(pecaDama);
         }
+    }*/
+    
+    
+    public void verificaFimDeJogo() {
+        if(pecasBrancas == 0 || pecasVermelhas == 0) {
+             fimDeJogo = true;
+        }
+    }
+    
+    public boolean getFimDeJogo() {
+        return fimDeJogo;
     }
     
     /**

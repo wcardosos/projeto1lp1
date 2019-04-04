@@ -109,14 +109,14 @@ public class Peca {
     }
     
     public void analisaEliminacoes(Casa casaPecaAdversaria, Casa casaEliminacao) {
-        if(tipo == 0) {
+        if(tipo < 2) {
               if(casaPecaAdversaria.getPeca() != null && (casaPecaAdversaria.getPeca().getTipo() == 2 || casaPecaAdversaria.getPeca().getTipo() == 3)) {
                   if(casaEliminacao.getPeca() == null) {
                       adicionaPosicao(casaEliminacao);
                   }
                    
               }
-        } else if(tipo == 2) {
+        } else {
              if(casaPecaAdversaria.getPeca() != null && (casaPecaAdversaria.getPeca().getTipo() == 0 || casaPecaAdversaria.getPeca().getTipo() == 1)) {
                  if(casaEliminacao.getPeca() == null) {
                      adicionaPosicao(casaEliminacao);
@@ -193,6 +193,16 @@ public class Peca {
     
     public int getDirecao() {
         return direcao;
+    }
+    
+    public boolean verificaCasaEliminacao(Casa destinoEliminacao) {
+        for(Casa casa : posicoesPossiveis) {
+            if(casa.equals(destinoEliminacao)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     public void verificaDama() {

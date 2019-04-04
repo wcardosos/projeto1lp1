@@ -53,4 +53,13 @@ public class Casa {
     public boolean possuiPeca() {
         return peca != null;
     }
+    
+    public boolean equals(Casa casaVerificacao) {
+        if(x == casaVerificacao.getX() && y == casaVerificacao.getY()) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }
